@@ -1,0 +1,43 @@
+"""Create the database tables and seed the first admin (and optional demo data).
+
+Usage:
+    python init_db.py                 # create tables, seed if the database is empty
+    python init_db.py --no-demo       # admin only (needs ADMIN_PASSWORD)
+    python init_db.py --reset --yes   # DROP everything and rebuild
+"""
+from __future__ import annotations
+
+import argparse
+import sys
+
+from database.session import init_db, reset_db
+from utils.config import DATABASE_URL, DEMO_MODE
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Initialise the School Management database.")
+    parser.add_argument("--reset", action="store_true", help="drop all tables first")
+    parser.add_argument("--yes", action="store_true", help="skip the confirmation prompt")
+    parser.add_argument("--demo", dest="demo", action="store_true", default=None,
+                        help="force sample data on")
+    parser.add_argument("--no-demo", dest="demo", action="store_false",
+                        help="do not load sample data")
+    args = parser.parse_args()
+
+    demo = DEMO_MODE if args.demo is None else args.demo
+    if args.reset:
+        if not args.yes:
+            answer = input(f"This will DELETE ALL DATA in {DATABASE_URL}. Type 'yes' to continue: ")
+            if answer.strip().lower() != "yes":
+                print("Aborted.")
+                return 1
+        reset_db(demo)
+        print("Database reset and re-seeded.")
+    else:
+        init_db(demo)
+        print("Database ready.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
