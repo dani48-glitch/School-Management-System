@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from utils.config import DEMO_MODE, SCHOOL_NAME
+from utils.config import DEMO_MODE = True, SCHOOL_NAME = "Your School Name"
 
 st.set_page_config(
     page_title=SCHOOL_NAME,
